@@ -1,0 +1,298 @@
+Write a REST API with following features
+1 .user registration.
+Registration fields
+-email
+-phone
+-password
+-confirm password
+ans -
+
+<?php
+if(!empty($_POST["register-user"])) {
+    /* Form Required Field Validation */
+    foreach($_POST as $key=>$value) {
+        if(empty($_POST[$key])) {
+        $error_message = "All Fields are required";
+        break;
+        }
+    }
+    /* Password Matching Validation */
+    if($_POST['password'] != $_POST['confirm_password']){ 
+    $error_message = 'Passwords should be same<br>'; 
+    }
+
+    /* Email Validation */
+    if(!isset($error_message)) {
+        if (!filter_var($_POST["userEmail"], FILTER_VALIDATE_EMAIL)) {
+        $error_message = "Invalid Email Address";
+        }
+    }
+
+    /* Validation to check if gender is selected */
+    if(!isset($error_message)) {
+    if(!isset($_POST["gender"])) {
+    $error_message = " All Fields are required";
+    }
+    }
+
+    /* Validation to check if Terms and Conditions are accepted */
+    if(!isset($error_message)) {
+        if(!isset($_POST["terms"])) {
+        $error_message = "Accept Terms and Conditions to Register";
+        }
+    }
+
+    if(!isset($error_message)) {
+        require_once("dbcontroller.php");
+        $db_handle = new DBController();
+        $query = "INSERT INTO registered_users (user_name, first_name, last_name, password, email, gender) VALUES
+        ('" . $_POST["userName"] . "', '" . $_POST["firstName"] . "', '" . $_POST["lastName"] . "', '" . md5($_POST["password"]) . "', '" . $_POST["userEmail"] . "', '" . $_POST["gender"] . "')";
+        $result = $db_handle->insertQuery($query);
+        if(!empty($result)) {
+            $error_message = "";
+            $success_message = "You have registered successfully!";    
+            unset($_POST);
+        } else {
+            $error_message = "Problem in registration. Try Again!";    
+        }
+    }
+}
+?>
+<html>
+<head>
+<title>PHP User Registration Form</title>
+<style>
+body{
+    width:610px;
+    font-family:calibri;
+}
+.error-message {
+    padding: 7px 10px;
+    background: #fff1f2;
+    border: #ffd5da 1px solid;
+    color: #d6001c;
+    border-radius: 4px;
+}
+.success-message {
+    padding: 7px 10px;
+    background: #cae0c4;
+    border: #c3d0b5 1px solid;
+    color: #027506;
+    border-radius: 4px;
+}
+.demo-table {
+    background: #d9eeff;
+    width: 100%;
+    border-spacing: initial;
+    margin: 2px 0px;
+    word-break: break-word;
+    table-layout: auto;
+    line-height: 1.8em;
+    color: #333;
+    border-radius: 4px;
+    padding: 20px 40px;
+}
+.demo-table td {
+    padding: 15px 0px;
+}
+.demoInputBox {
+    padding: 10px 30px;
+    border: #a9a9a9 1px solid;
+    border-radius: 4px;
+}
+.btnRegister {
+    padding: 10px 30px;
+    background-color: #3367b2;
+    border: 0;
+    color: #FFF;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+</style>
+</head>
+<body>
+<form name="frmRegistration" method="post" action="">
+<table border="0" width="500" align="center" class="demo-table">
+<?php if(!empty($success_message)) { ?>    
+<div class="success-message"><?php if(isset($success_message)) echo $success_message; ?></div>
+<?php } ?>
+<?php if(!empty($error_message)) { ?>    
+<div class="error-message"><?php if(isset($error_message)) echo $error_message; ?></div>
+<?php } ?>
+<tr>
+<td>User Name</td>
+<td><input type="text" class="demoInputBox" name="userName" value="<?php if(isset($_POST['userName'])) echo $_POST['userName']; ?>"></td>
+</tr>
+<tr>
+<td>First Name</td>
+<td><input type="text" class="demoInputBox" name="firstName" value="<?php if(isset($_POST['firstName'])) echo $_POST['firstName']; ?>"></td>
+</tr>
+<tr>
+<td>Last Name</td>
+<td><input type="text" class="demoInputBox" name="lastName" value="<?php if(isset($_POST['lastName'])) echo $_POST['lastName']; ?>"></td>
+</tr>
+<tr>
+<td>Password</td>
+<td><input type="password" class="demoInputBox" name="password" value=""></td>
+</tr>
+<tr>
+<td>Confirm Password</td>
+<td><input type="password" class="demoInputBox" name="confirm_password" value=""></td>
+</tr>
+<tr>
+<td>Email</td>
+<td><input type="text" class="demoInputBox" name="userEmail" value="<?php if(isset($_POST['userEmail'])) echo $_POST['userEmail']; ?>"></td>
+</tr>
+<tr>
+<td>Gender</td>
+<td><input type="radio" name="gender" value="Male" <?php if(isset($_POST['gender']) && $_POST['gender']=="Male") { ?>checked<?php  } ?>> Male
+<input type="radio" name="gender" value="Female" <?php if(isset($_POST['gender']) && $_POST['gender']=="Female") { ?>checked<?php  } ?>> Female
+</td>
+</tr>
+<tr>
+<td colspan=2>
+<input type="checkbox" name="terms"> I accept Terms and Conditions <input type="submit" name="register-user" value="Register" class="btnRegister"></td>
+</tr>
+</table>
+</form>
+</body></html>
+
+*********************************************************************************************************************
+
+2. Registered user can create, read and update their profile
+Profile fields
+-First name
+-Last Name
+-role (editor/writer)
+ans -
+<?php
+$servername = "localhost";
+$username = "username";
+$password = "password";
+$dbname = "myDB";
+
+// Create connection 
+$conn = mysqli_connection($servername, $username, $password, $dbname);
+// Check connection 
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+} 
+
+$sql = "UPDATE MyGuests SET lastname='Doe' WHERE id=2";
+
+if (mysqli_query($conn, $sql)) {
+    echo "Record updated successsfully";
+} else {
+    echo "Error updating record: " . mysqli_error($conn);
+}
+
+mysqli_close($conn);
+?>
+*********************************************************************************************************************
+3. User with writer role can create posts and read, update and delete only their posts
+Article fields
+-title
+-post
+ans-
+<?php
+    if(isset($_POST["name"])) {
+        $name = $_POST["name"];
+        $message = $_POST["message"];
+        echo $name;
+        echo $message;
+        file_put_contents("messages.txt", file_get_contents("messages.txt")."\n$name;message");
+    }
+    elseif(isset($_POST["update"])) {
+        $string = file_get_contents("messages.txt");
+        $array = explode("\n", $string);
+        $result = array();
+        for ($i = 0; $i < count($array); $i++) {
+            $temp = explode(";", $array[$i]);
+            $result[$i] ["name"] = $temp[0];
+            $result[$i] ["message"] = $temp[1];
+        }
+        echo json_encode($result);
+    }
+?>
+
+<!-- Created by Akash Yadav -->
+
+<?php
+$dbhost = 'localhost';
+$dbuser = 'root';
+$dbpass = '';
+$conn = mysql_connect($dbhost, $dbuser, $dbpass);
+if(! $conn )
+{
+  die('Could not connect: ' . mysql_error());
+}
+$sql = 'UPDATE studentinfo
+        SET student_name="Akash Yadav"
+        WHERE student_id=1';
+
+mysql_select_db('college');
+$retval = mysql_query( $sql, $conn );
+if(! $retval )
+{
+  die('Could not update data: ' . mysql_error());
+}
+echo "Updated data successfully\n";
+mysql_close($conn);
+?>
+*********************************************************************************************************************
+4. User with writer role can read comments on his posts.
+ans-
+<?php   
+   echo "<p>Hello World!</p>";
+    /*
+    This is a multi-line comment block
+    that spans over
+    multiple lines
+    */
+    echo "<p>I am  learning to PHP!</p>";
+    echo "<p>This is my first program!</p>";
+?>
+*********************************************************************************************************************
+5. User with editor role can read all posts and comment on posts.
+ans-
+<?php
+    $myfile = fopen("names.txt", "w");
+
+    $txt = "This is line one\n";
+    fwrite($myfile, $txt);
+    $txt = "This line two\n";
+    fwrite($myfile, $txt);
+
+    fclose($myfile);
+
+    $read = file('names.txt');
+    $count = count($read);
+    $i = 1;
+    foreach ($read as $line) {
+        echo $line;
+        if($i < $count) {
+            echo ', ';
+        }
+        $i++;
+    }
+?>
+*******************************************************************************************************************
+Demonstrate understanding of MVC
+ans-
+MVC is a software structure that is commonly used in the industry as a framework for creating efficient web applications. It is an architectural pattern that consists of three components Model, View, and Controller that effectively separates Business Logic from the user interface of an application.
+********************************************************************************************************************
+Unit Testing
+ans-
+
+Unit testing is the practice to test only one single unit(class). For unit test to be any good the should be allowed to run in isolation(alone) and be very fast or else you would probably not run your tests very often
+********************************************************************************************************************
+API request response documentation
+ans-
+Documentation for the API you’re using will describe the response body that’s returned for each operation, but many APIs implement the following behavior: The body of an API response is typically specified in a format called JSON.
+********************************************************************************************************************
+Usage of any PHP Framework
+ans-
+Kohana Being a PHP 5 Framework, Kohana bids flexibility and community support .
+
+CodeIgniter CodeIgniter is added PHP framework that conveys litheness to the security and has a very trivial footprint
